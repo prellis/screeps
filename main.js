@@ -48,7 +48,7 @@ module.exports.loop = function() {
     var singleLoopCPU = 0;
     var allLoopCPU = 0;
 
-    while (cpuLimit > allLoopCPU + 10 * singleLoopCPU) {
+    while (cpuLimit > allLoopCPU + 5 * singleLoopCPU) {
         var startLoopCPU = Game.cpu.getUsed();
         for (var name in Game.creeps) {
             var creep = Game.creeps[name];
@@ -62,4 +62,7 @@ module.exports.loop = function() {
         singleLoopCPU = Game.cpu.getUsed() - startLoopCPU;
         allLoopCPU = allLoopCPU + singleLoopCPU;
     }
+    console.log('bucket: ' + Game.cpu.bucket);
+    console.log('limit: ' + Game.cpu.limit);
+    console.log('used: ' + allLoopCPU);
 }
