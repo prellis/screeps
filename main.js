@@ -62,7 +62,7 @@ module.exports.loop = function() {
         allLoopCPU = allLoopCPU + singleLoopCPU;
     }
     console.log('CPU Stats');    
-    console.log(' bucket: ' + Game.cpu.bucket);
     console.log(' used in screeps loop: ' + allLoopCPU);
-    console.log(' total used: ' + Game.getUsedCpu);    
+    console.log(' total used: ' + Game.cpu.getUsed());
+    console.log(' bucket: ' + Game.cpu.bucket);    
 }
