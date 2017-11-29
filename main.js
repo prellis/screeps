@@ -43,22 +43,23 @@ module.exports.loop = function() {
         }
     }
 
-    var managementCPU = Game.cpu.getUsed() - startingCPU;
+    var preLoopCPU = Game.cpu.getUsed() - startingCPU;
+    var cpuLimit = Game.cpu.bucket - preLoopCPU;
+    var singleLoopCPU = 0;
+    var allLoopCPU = 0;
 
-    for (var name in Game.creeps) {
-        var creep = Game.creeps[name];
-        if (creep.memory.role == 'harvester') {
-            roleHarvester.run(creep);
+    while (cpuLimit > allLoopCPU + 10 * singleLoopCPU) {
+        var startLoopCPU = Game.cpu.getUsed();
+        for (var name in Game.creeps) {
+            var creep = Game.creeps[name];
+            if (creep.memory.role == 'harvester') {
+                roleHarvester.run(creep);
+            }
+            if (creep.memory.role == 'upgrader') {
+                roleUpgrader.run(creep);
+            }
         }
-        if (creep.memory.role == 'upgrader') {
-            roleUpgrader.run(creep);
-        }
+        singleLoopCPU = Game.cpu.getUsed() - startLoopCPU;
+        allLoopCPU = allLoopCPU + singleLoopCPU;
     }
-
-    var creepCPU = Game.cpu.getUsed() - managementCPU;
-
-    console.log('bucket: ' + Game.cpu.bucket);
-    console.log('limit: ' + Game.cpu.limit);
-    console.log('managementCPU: ' + managementCPU);
-    console.log('creepCPU: ' + creepCPU);
 }
