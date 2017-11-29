@@ -10,10 +10,14 @@ module.exports.loop = function() {
     }
     
 
-    var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
-    var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
-    var testIfCanSpawn = Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], 
-        'creep' + Game.time, { dryRun: true });
+    var harvesters = _.filter(Game.creeps,
+                              (creep) => creep.memory.role == 'harvester');
+    var upgraders = _.filter(Game.creeps,
+                             (creep) => creep.memory.role == 'upgrader');
+    var testIfCanSpawn =
+        Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], 
+                                         'creep' + Game.time,
+                                         { dryRun: true });
 
     console.log('Harvesters: ' + harvesters.length);       
     console.log('Upgraders: ' + upgraders.length);
