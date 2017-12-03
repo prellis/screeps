@@ -47,6 +47,11 @@ module.exports.loop = function() {
     var singleLoopCPU = 0;
     var allLoopCPU = 0;
 
+    /* This wastes a bunch of CPU since the game only supports doing
+       one action from run() per CPU.
+       TODO: Use the cpu cycle feedback to MAKE MOAR SCREEPS
+    */
+    
     while (Game.cpu.tickLimit - 2 > allLoopCPU + 5 * singleLoopCPU) {
         var startLoopCPU = Game.cpu.getUsed();
         for (var name in Game.creeps) {
@@ -61,6 +66,7 @@ module.exports.loop = function() {
         singleLoopCPU = Game.cpu.getUsed() - startLoopCPU;
         allLoopCPU = allLoopCPU + singleLoopCPU;
     }
+
     console.log('CPU Stats');    
     console.log(' used in screeps loop: ' + allLoopCPU);
     console.log(' total used: ' + Game.cpu.getUsed());
