@@ -1,3 +1,28 @@
+/** @param {Creep} creep
+    @param {boolean} toSource
+*/
+function toCommuting(creep, toSource) {
+    var destinations;
+    if (toSource) {
+        destinations = creep.room.find(FIND_SOURCES);
+    }
+    else {
+        destinations = creep.room.find(FIND_STRUCTURES, {
+            filter: (structure) => {
+                return ((structure.structureType ==
+                         STRUCTURE_EXTENSION ||
+                         structure.structureType == STRUCTURE_SPAWN) &&
+                        structure.energy < structure.energyCapacity);
+            }
+        });
+    }
+    if (destinations.length > 0) {
+        creep.memory.state = "commuting";
+        creep.memory.destination = destinations[0].id;
+        creep.say('commuting');
+    }
+}
+
 var roleHarvester = {
 
     /** Harvesters are state machines.
@@ -27,14 +52,9 @@ var roleHarvester = {
     /** @param {Creep} creep **/
     run: function(creep) {
         if (creep.memory.state != "commuting" &&
-	    creep.memory.state != "delivering" &&
-	    creep.memory.state != "harvesting") {
-            var destinations = creep.room.find(FIND_SOURCES);
-            if (destinations.length > 0) {
-                creep.memory.state = "commuting";
-                creep.memory.destination = destinations[0].id;
-		creep.say('commuting');
-            }
+            creep.memory.state != "delivering" &&
+            creep.memory.state != "harvesting") {
+            toCommuting(creep, true);
         }
 
         if (creep.memory.state == "commuting") {
@@ -43,11 +63,11 @@ var roleHarvester = {
             if (destination.pos.isNearTo(creep.pos)) {
                 if (creep.carry.energy == 0) {
                     creep.memory.state = "harvesting";
-		    creep.say('harvesting');
+                    creep.say('harvesting');
                 }
                 else {
                     creep.memory.state = "delivering";
-		    creep.say('delivering');
+                    creep.say('delivering');
                 }
             }
             else {
@@ -57,19 +77,7 @@ var roleHarvester = {
         }
         else if (creep.memory.state == "harvesting") {
             if (creep.carry.energy == creep.carryCapacity) {
-                var destinations = creep.room.find(FIND_STRUCTURES, {
-                    filter: (structure) => {
-                        return ((structure.structureType ==
-                                 STRUCTURE_EXTENSION ||
-                                 structure.structureType == STRUCTURE_SPAWN) &&
-                                structure.energy < structure.energyCapacity);
-                    }
-                });
-                if (destinations.length > 0) {
-                    creep.memory.state = "commuting";
-                    creep.memory.destination = destinations[0].id;
-		    creep.say('commute');
-                }
+                toCommuting(creep, false);
             }
             else {
                 var destination = Game.getObjectById(creep.memory.destination);
@@ -78,24 +86,11 @@ var roleHarvester = {
         }
         else if (creep.memory.state == "delivering") {
             if (creep.carry.energy == 0) {
-                var destinations = creep.room.find(FIND_SOURCES);
-                if (destinations.length > 0) {
-                    creep.memory.state = "commuting";
-                    creep.memory.destination = destinations[0].id;
-		    creep.say('commute');
-                }
+                toCommuting(creep, true);
             }
             else {
                 var destination = Game.getObjectById(creep.memory.destination);
-                if (OK != creep.transfer(destination, RESOURCE_ENERGY)) {
-		    /* Fix transition bug. */
-                    var destinations = creep.room.find(FIND_SOURCES);
-                    if (destinations.length > 0) {
-			creep.memory.state = "commuting";
-			creep.memory.destination = destinations[0].id;
-			creep.say('commute');
-                    }
-		}
+                creep.transfer(destination, RESOURCE_ENERGY);
             }
         }
     }
