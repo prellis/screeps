@@ -22,9 +22,6 @@ module.exports.loop = function() {
                                          'creep' + Game.time,
                                          { dryRun: true });
 
-    //    console.log('Harvesters: ' + harvesters.length);
-    //    console.log('Upgraders: ' + upgraders.length);
-
     if (harvesters.length < 2) {
         if (testIfCanSpawn == OK) {
             var newName = 'harvester' + Game.time;
@@ -43,32 +40,22 @@ module.exports.loop = function() {
         }
     }
 
-    var preLoopCPU = Game.cpu.getUsed() - startingCPU;
-    var singleLoopCPU = 0;
-    var allLoopCPU = 0;
-
-    /* This wastes a bunch of CPU since the game only supports doing
-       one action from run() per CPU.
-       TODO: Use the cpu cycle feedback to MAKE MOAR SCREEPS
-    */
+    var startLoopCPU = Game.cpu.getUsed();
     
-//    while (Game.cpu.tickLimit - 2 > allLoopCPU + 5 * singleLoopCPU) {
-        var startLoopCPU = Game.cpu.getUsed();
-        for (var name in Game.creeps) {
-            var creep = Game.creeps[name];
-            if (creep.memory.role == 'harvester') {
-                roleHarvester.run(creep);
-            }
-            if (creep.memory.role == 'upgrader') {
-                roleUpgrader.run(creep);
-            }
+    for (var name in Game.creeps) {
+        var creep = Game.creeps[name];
+        if (creep.memory.role == 'harvester') {
+            roleHarvester.run(creep);
         }
-        singleLoopCPU = Game.cpu.getUsed() - startLoopCPU;
-        allLoopCPU = allLoopCPU + singleLoopCPU;
-//    }
+        if (creep.memory.role == 'upgrader') {
+            roleUpgrader.run(creep);
+        }
+    }
+
+    var loopCPU = Game.cpu.getUsed() - startLoopCPU;
 
     console.log('CPU Stats');    
-    console.log(' used in screeps loop: ' + allLoopCPU);
+    console.log(' used in screeps loop: ' + loopCPU);
     console.log(' total used: ' + Game.cpu.getUsed());
     console.log(' bucket: ' + Game.cpu.bucket);    
 }
