@@ -1,0 +1,128 @@
+* My Screeps Architecture
+
+This page will explain the software components and interactions
+implemented in this project.
+
+* Main Loop
+
+The main loop does only a few things:
+
+  * Cull dead creeps
+  * Spawn new creeps
+  * Invoke each living creep to do something
+
+[[./main_loop.png]]
+
+* Harvester
+
+Harvesters are creeps who are responsible for gathering resources.
+They are state machines with simple functionality.  The states are as
+follows:
+
+  * Commuting
+
+    Either moving from the spawn to a source to collect resources OR
+    moving from the source back to the spawn to deliver the
+    collected resources.
+
+    [[./harvester_commuting.png]]
+
+  * Harvesting
+
+    Transferring resources from a source to storage on the creep.
+
+    [[./harvester_harvesting.png]]
+
+  * Delivering
+
+    Transferring resources from creep storage into the spawn.
+
+    [[./harvester_delivering.png]]
+
+
+* Upgrader
+
+* Diagram Sources
+
+** main_loop.png
+
+#+begin_src plantuml :file main_loop.png
+
+(*) --> "Erase Dead Creeps"
+--> "Read harvesters and upgraders from storage"
+
+if "Number of Harvesters < 2" then
+  -->[true] if "Enough Resources To\nSpawn A Harvester" then
+    -->[true] "Spawn Harvester"
+    --> "Harvester Spawn Done" as hsd
+  else
+    -->[false] hsd
+  endif
+else
+  -->[false] hsd
+endif
+
+if "Number of Upgraders < 2" then
+  -->[true] if "Enough Resources To\nSpawn A Upgrader" then
+    -->[true] "Spawn Upgrader"
+    --> "Upgrader Spawn Done" as usd
+  else
+    -->[false] usd
+  endif
+else
+  -->[false] usd
+endif
+
+--> "Loop through each creep and call run()"
+--> (*)
+
+#+end_src
+
+** harvester_commuting.png
+
+#+begin_src plantuml :file harvester_commuting.png
+
+(*) --> "Commuting"
+if "Creep is at destination" then
+   -->[true] if "Creep is carrying energy" then
+     -->[true] "Change state to delivering"
+   else
+     -->[false] "Change state to harvesting"
+   endif
+else
+  -->[false] "Move creep"
+endif
+
+--> (*)
+
+#+end_src
+
+** harvester_harvesting.png
+
+#+begin_src plantuml :file harvester_harvesting.png
+
+(*) --> "Harvesting"
+if "Creep resource storage at capacity" then
+   -->[true] "Find delivery destination"
+   -->"Change state to delivering"
+else
+   --> "Harvest resources"
+   --> (*)
+endif
+
+#+end_src
+
+** harvester_delivering.png
+
+#+begin_src plantuml :file harvester_delivering.png
+
+(*) --> "Delivering"
+if "Creep resource storage is empty" then
+   -->[true] "Find harvesting destination"
+   -->"Change state to commuting"
+else
+   --> "Transfer resources"
+   --> (*)
+endif
+
+#+end_src
